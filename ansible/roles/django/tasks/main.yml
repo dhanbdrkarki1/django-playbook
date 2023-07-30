@@ -1,0 +1,53 @@
+---
+# tasks file for django
+- name: Create Virtual environment
+  shell: virtualenv -p python3 "{{ virtualenv_dir }}"
+
+- name: Change project ownership
+  file:
+    path: "{{ project_path }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    recurse: yes
+
+- name: Activate Virtual environment
+  shell: source "{{ virtualenv_dir }}"/bin/activate
+
+- name: Install python requirements
+  pip:
+    requirements: "{{ project_path}}/requirements.txt" 
+
+- name: Makemigrations
+  shell: 
+    chdir: "{{ project_path }}"
+    cmd: "{{ python_path }} manage.py makemigrations --noinput"
+    executable: /bin/bash
+  
+- name: Migrate
+  shell:
+    chdir: "{{ project_path }}"
+    cmd: "{{ python_path }} manage.py migrate --noinput"
+    executable: /bin/bash
+
+- name: Create SuperUser
+  script: 
+    chdir: "{{ project_path }}"
+    cmd: superuser.sh "{{ python_path }}"
+    executable: /bin/bash
+
+- name: Create static directory for nginx
+  shell: mkdir /var/www/todolist && chown $USER:$USER -R /var/www/todolist
+
+- name: CollectStatic
+  shell: 
+    chdir: "{{ project_path }}"
+    cmd: "{{ python_path }} manage.py collectstatic --noinput"
+    executable: /bin/bash
+
+- name: Copy db environment
+  copy: 
+    src: .env
+    dest: "{{ project_path }}/.env"
+    owner: root
+    group: root
+    mode: 0644

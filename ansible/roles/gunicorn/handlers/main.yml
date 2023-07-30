@@ -1,0 +1,4 @@
+---
+# handlers file for gunicorn
+- name: start gunicorn socket and service
+  script: gunicorn.sh 

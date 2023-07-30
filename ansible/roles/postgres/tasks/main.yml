@@ -1,0 +1,84 @@
+---
+# task for postgres
+
+
+- name: Add the PostgreSQL repository key to the apt trusted keys
+  apt_key: 
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: Add the PostgreSQL repository to the apt sources list
+  apt_repository: 
+    repo: 'deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main'
+    update_cache: yes
+    state: present
+
+- name: Ensure locale is available
+  locale_gen: name=en_US.UTF-8
+
+- name: Install required packages for postgres
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  with_items:
+    - acl
+    - postgresql
+    - postgresql-contrib
+    - libpq-dev
+    - python3-psycopg2
+
+
+- name: Check if postgresql already exists
+  stat:
+    path: "/var/lib/pgsql/data/pg_hba.conf"
+  register: postgres_data
+
+# - name: "Initialize PostgreSQL"
+#   shell: "postgresql-setup initdb"
+#   when: postgres_data.rc == 1
+
+- name: Start and enable PostgreSQL service
+  service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Create a new database  and specific encoding and locale
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ db_name }}"
+    state: present
+    # encoding: UTF-8
+    # lc_collate: en_US.UTF-8
+    # lc_ctype: en_US.UTF-8
+    # template: template0
+
+- name: Create database user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    encrypted: yes
+    state: present
+
+# If objs is omitted for type "database", it defaults to the database to which the connection is established
+- name: Grant database privileges to the user.
+  become: true
+  become_user: postgres
+  postgresql_privs:
+    db: "{{ db_name }}"
+    privs: ALL
+    type: database
+    role: "{{ db_user }}"
+
+- name: Ensure user does not have unnecessary privileges
+  become: true
+  become_user: postgres
+  postgresql_user: 
+    name: "{{ db_user }}"
+    role_attr_flags: NOSUPERUSER,NOCREATEDB
+    state: present
+

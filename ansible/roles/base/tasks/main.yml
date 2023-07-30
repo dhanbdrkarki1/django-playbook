@@ -1,0 +1,60 @@
+---
+# tasks file for user
+- name: Update repos
+  apt: 
+    update_cache: yes
+    upgrade: dist
+    state: latest
+
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python3-dev
+    - python3-pip
+    - python3-virtualenv
+    - curl
+
+- name: Add new user
+  user:
+    name: "{{ username }}"
+    password: "{{ password }}"
+    shell: /bin/bash
+    groups: sudo
+    append: yes
+    state: present
+
+- name: Add ssh public key to the new user
+  authorized_key:
+    user: "{{ username }}"
+    exclusive: yes
+    key: "{{ lookup('file', ssh_public_key_file) }}"
+    state: present
+
+- name: Check if file exists
+  stat:
+    path: /etc/sudoers.d/{{ username }}
+  register: file_data
+  changed_when: no
+
+- name: Setup sudo command without password
+  shell: echo "{{ username }} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/{{ username }}
+  args:
+    executable: /bin/bash
+  when: not file_data.stat.exists
+
+
+- name: Check ssh policies
+  shell: grep -Fxq 'PermitRootLogin yes' /etc/ssh/sshd_config
+  register: ssh_check
+  ignore_errors: yes
+  changed_when: no
+ 
+- name: Setup ssh policies
+  script: ssh_policies.sh
+  when: ssh_check.rc == 0
+  notify: restart sshd
+
+  
+    

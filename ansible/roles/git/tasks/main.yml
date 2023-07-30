@@ -1,0 +1,10 @@
+---
+# tasks file for git
+- name: Change hostname
+  command: hostnamectl set-hostname host1
+
+- name: Git Checkout
+  git:
+    repo: "{{ repo_url }}/{{ repo_name }}.git"
+    version: "{{ git_branch }}"
+    dest: "{{ repo_dir }}"

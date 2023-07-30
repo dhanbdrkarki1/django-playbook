@@ -1,0 +1,11 @@
+---
+- name: Provision application web server
+  hosts: _web_server
+  become: true
+  gather_facts: false
+  roles:
+    - base
+    - git
+    - django
+    - gunicorn
+    - nginx

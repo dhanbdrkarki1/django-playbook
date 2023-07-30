@@ -1,0 +1,14 @@
+server {
+    listen {{ web_port }};
+    server_name {{ app_ip_addr }};
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        alias /var/www/todolist/static/;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}

@@ -1,0 +1,7 @@
+---
+- name: Provision application db server
+  hosts: _web_server
+  gather_facts: false
+  become: true
+  roles:
+    - postgres

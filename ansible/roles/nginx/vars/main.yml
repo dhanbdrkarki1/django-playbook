@@ -1,0 +1,4 @@
+---
+# vars file for nginx
+web_port: 80
+app_ip_addr: "3.137.167.37"

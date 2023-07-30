@@ -1,0 +1,45 @@
+---
+
+ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+ansible_ssh_user: ubuntu
+ansible_ssh_private_key_file: /home/dhan/.ssh/django-test.pem
+
+# project settings
+project_name: todolist
+project_path: /home/dhan/django-in-production
+virtualenv_dir: /home/dhan/django-in-production/venv
+application_name: todolist
+
+# user
+username: dhan
+password: P@ssword0
+ssh_public_key_file: "/home/dhan/.ssh/id_rsa.pub"
+
+# git settings
+repo_url: https://github.com/dhanbdrkarki1
+repo_name: deploy-django
+repo_dir: /home/dhan/django-in-production
+git_branch: main
+
+# database settings
+ansible_distribution_release: jammy
+db_name: todolist
+db_user: dhan
+db_password: P@ssword0
+
+
+# vars file for nginx
+web_port: 80
+app_ip_addr: "3.137.167.37"
+
+# Gunicorn settings
+# For the number of workers, a good rule to follow is 2 x number of CPUs + 1
+gunicorn_num_workers: 3
+
+# Setting this to 1 will restart the Gunicorn process each time
+# you make a request, basically reloading the code. Very handy
+# when developing. Set to 0 for unlimited requests (default).
+gunicorn_max_requests: 0
+gunicorn_timeout_seconds: 300
+
+

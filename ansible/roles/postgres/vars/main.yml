@@ -1,0 +1,3 @@
+---
+# vars file for postgres
+ansible_distribution_release: jammy
