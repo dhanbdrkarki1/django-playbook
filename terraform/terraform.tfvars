@@ -10,7 +10,7 @@ web_vpc_tenancy        = "default"
 
 # ec2
 ami  = "ami-053b0d53c279acc90"
-type = "t3.medium"
+type = "t3.small"
 az1  = "us-east-1a"
 
 # Route53

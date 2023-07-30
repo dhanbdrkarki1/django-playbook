@@ -1,21 +1,35 @@
 ---
 # tasks file for django
-- name: Create Virtual environment
-  shell: virtualenv -p python3 "{{ virtualenv_dir }}"
 
-- name: Change project ownership
-  file:
-    path: "{{ project_path }}"
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    recurse: yes
+- name: Create the virtualenv
+  command: virtualenv -p python3 {{ virtualenv_dir }}
+           creates={{ virtualenv_dir }}/bin/activate
 
-- name: Activate Virtual environment
-  shell: source "{{ virtualenv_dir }}"/bin/activate
+# - name: Create Virtual environment
+#   shell: virtualenv -p python3 "{{ virtualenv_dir }}"
+
+# - name: Change project ownership
+#   file:
+#     path: "{{ project_path }}"
+#     owner: "{{ username }}"
+#     group: "{{ username }}"
+#     recurse: yes
+
+# - name: Activate Virtual environment
+#   shell: source "{{ virtualenv_dir }}"/bin/activate
 
 - name: Install python requirements
   pip:
     requirements: "{{ project_path}}/requirements.txt" 
+
+
+- name: Copy db environment
+  copy: 
+    src: .env
+    dest: "{{ project_path }}/.env"
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Makemigrations
   shell: 
@@ -35,8 +49,18 @@
     cmd: superuser.sh "{{ python_path }}"
     executable: /bin/bash
 
+# - name: Create static directory for nginx
+#   shell: mkdir /var/www/todolist && chown $USER:$USER -R /var/www/todolist
+
 - name: Create static directory for nginx
-  shell: mkdir /var/www/todolist && chown $USER:$USER -R /var/www/todolist
+  # become: true
+  file:
+    path: /var/www/todolist
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+
 
 - name: CollectStatic
   shell: 
@@ -44,10 +68,3 @@
     cmd: "{{ python_path }} manage.py collectstatic --noinput"
     executable: /bin/bash
 
-- name: Copy db environment
-  copy: 
-    src: .env
-    dest: "{{ project_path }}/.env"
-    owner: root
-    group: root
-    mode: 0644

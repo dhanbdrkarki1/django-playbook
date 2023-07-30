@@ -1,6 +1,6 @@
 ---
-# - name: Import tasks from dbservers.yml
-#   import_playbook: dbservers.yml
+- name: Import tasks from dbservers.yml
+  import_playbook: dbservers.yml
 
 - name: Import tasks from webservers.yml
   import_playbook: webservers.yml

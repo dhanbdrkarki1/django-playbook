@@ -30,7 +30,7 @@ db_password: P@ssword0
 
 # vars file for nginx
 web_port: 80
-app_ip_addr: "3.137.167.37"
+app_ip_addr: "18.208.246.67"
 
 # Gunicorn settings
 # For the number of workers, a good rule to follow is 2 x number of CPUs + 1
